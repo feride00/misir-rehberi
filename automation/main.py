@@ -24,27 +24,27 @@ Mekanlar = [
     {
         "Ad": "Giza Piramitleri",
         "Aciklama": "Dünyanın yedi harikasından biri...",
-        "Puan": 9.8
+        
     },
     {
         "Ad": "Sfenks",
         "Aciklama": "Giza ovasında bulunan dev taş heykel...",
-        "Puan": 9.5
+        
     },
     {
         "Ad": "Mısır Müzesi",
         "Aciklama": "Kahire'nin kalbinde yer alan müze...",
-        "Puan": 9.2
+        
     },
     {
         "Ad": "Karnak Tapınağı",
         "Aciklama": "Luksor'daki dev tapınak kompleksi...",
-        "Puan": 9.0
+        
     },
     {
         "Ad": "Abu Simbel Tapınakları",
         "Aciklama": "Firavun II. Ramses tarafından yaptırıldı...",
-        "Puan": 9.6
+        
     }
 ]
 
@@ -170,7 +170,6 @@ def MekanEkle(Token, Mekan, SehirId, MedyaId, AciklamaEn):
             "Ad": Mekan["Ad"],
             "Aciklama": Mekan["Aciklama"],
             "Aciklama_en": AciklamaEn,
-            "Puan": Mekan["Puan"],
             "Sehir": SehirId,
             "Kapak": MedyaId
         }
