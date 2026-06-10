@@ -4,219 +4,217 @@ from dotenv import load_dotenv
 from deep_translator import GoogleTranslator
 from groq import Groq
 
-# .env dosyasını yükle
+# -------------------------
+# ENV
+# -------------------------
 load_dotenv()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-STRAPI_URL = os.getenv("STRAPI_URL")
-STRAPI_EMAIL = os.getenv("STRAPI_ADMIN_EMAIL")
-STRAPI_PASSWORD = os.getenv("STRAPI_ADMIN_PASSWORD")
-TOKEN = os.getenv("TOKEN")
-
+GroqApiKey = os.getenv("GROQ_API_KEY")
+StrapiUrl = os.getenv("STRAPI_URL")
+Token = os.getenv("TOKEN")
 
 # -------------------------
-# Mısır'daki mekanların ham verisi
+# VERİLER
 # -------------------------
-SEHIR = "Kahire"
-ULKE = "Mısır"
-SEHIR_ACIKLAMA = "Mısır'ın başkenti ve Afrika'nın en kalabalık şehri."
+SehirAdi = "Kahire"
+UlkeAdi = "Mısır"
+SehirAciklama = "Mısır'ın başkenti ve Afrika'nın en kalabalık şehri."
 
-MEKANLAR = [
+Mekanlar = [
     {
-        "name": "Giza Piramitleri",
-        "description": "Dünyanın yedi harikasından biri olan Giza Piramitleri, MÖ 2560 yılında inşa edilmiştir. Firavun Keops için yapılan büyük piramit, antik dünyanın en etkileyici yapılarından biridir.",
-        "score": 9.8
+        "Ad": "Giza Piramitleri",
+        "Aciklama": "Dünyanın yedi harikasından biri...",
+        "Puan": 9.8
     },
     {
-        "name": "Sfenks",
-        "description": "Giza ovasında bulunan dev taş heykel, aslan gövdeli ve insan yüzlüdür. MÖ 2500 yıllarına tarihlenen Sfenks, Mısır'ın en tanınan simgelerinden biridir.",
-        "score": 9.5
+        "Ad": "Sfenks",
+        "Aciklama": "Giza ovasında bulunan dev taş heykel...",
+        "Puan": 9.5
     },
     {
-        "name": "Mısır Müzesi",
-        "description": "Kahire'nin kalbinde yer alan müze, Firavun Tutankhamun'un altın maskesi dahil 120.000'den fazla tarihi esere ev sahipliği yapar.",
-        "score": 9.2
+        "Ad": "Mısır Müzesi",
+        "Aciklama": "Kahire'nin kalbinde yer alan müze...",
+        "Puan": 9.2
     },
     {
-        "name": "Karnak Tapınağı",
-        "description": "Luksor'daki dev tapınak kompleksi, binlerce yıl boyunca inşa edilmiştir. Antik Mısır'ın en büyük dini yapılarından biridir.",
-        "score": 9.0
+        "Ad": "Karnak Tapınağı",
+        "Aciklama": "Luksor'daki dev tapınak kompleksi...",
+        "Puan": 9.0
     },
     {
-        "name": "Abu Simbel Tapınakları",
-        "description": "Firavun II. Ramses tarafından yaptırılan bu dev kaya tapınakları, Asvan yakınlarında bulunur ve UNESCO Dünya Mirası listesindedir.",
-        "score": 9.6
+        "Ad": "Abu Simbel Tapınakları",
+        "Aciklama": "Firavun II. Ramses tarafından yaptırıldı...",
+        "Puan": 9.6
     }
 ]
 
-
 # -------------------------
-# 1. GROQ ile metin zenginleştirme
+# GROQ
 # -------------------------
-def zenginlestir(mekan_adi, aciklama):
-    """Groq API kullanarak mekan açıklamasını genişletir."""
-    print(f"  → Groq ile zenginleştiriliyor: {mekan_adi}")
-    client = Groq(api_key=GROQ_API_KEY)
-    prompt = f"""
-Sen bir Mısır turizm uzmanısın. Aşağıdaki mekan hakkında turistlere yönelik,
-ilgi çekici ve bilgilendirici bir açıklama yaz. Türkçe yaz. Maksimum 3 cümle.
+def Zenginlestir(MekanAd, Aciklama):
+    print(f"  → Groq ile zenginleştiriliyor: {MekanAd}")
 
-Mekan: {mekan_adi}
-Mevcut bilgi: {aciklama}
+    Istemci = Groq(api_key=GroqApiKey)
+
+    Istek = f"""
+Sen bir Mısır turizm uzmanısın.
+Mekan: {MekanAd}
+Bilgi: {Aciklama}
+Türkçe, max 3 cümle yaz.
 """
-    response = client.chat.completions.create(
+
+    Yanit = Istemci.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": Istek}],
         max_tokens=300
     )
-    return response.choices[0].message.content.strip()
+
+    return Yanit.choices[0].message.content.strip()
 
 
 # -------------------------
-# 2. Çeviri (TR → EN)
+# ÇEVİRİ
 # -------------------------
-def cevir(metin):
-    """deep-translator ile Türkçe metni İngilizceye çevirir."""
-    print(f"  → Çevriliyor...")
-    translated = GoogleTranslator(source='tr', target='en').translate(metin)
-    return translated
+def Cevir(Metin):
+    print("  → İngilizceye çevriliyor...")
+    return GoogleTranslator(source='tr', target='en').translate(Metin)
 
 
 # -------------------------
-# 3. Pollinations AI ile görsel üretimi ve indirme
+# GÖRSEL
 # -------------------------
-def gorsel_uret_ve_indir(mekan_adi, dosya_adi):
-    """Pollinations AI ile mekan görseli üretir ve kaydeder."""
-    print(f"  → Görsel üretiliyor: {mekan_adi}")
-    prompt = f"Touristic landscape photo of {mekan_adi}, Egypt, ancient architecture, golden hour, high quality, photorealistic"
-    prompt_encoded = requests.utils.quote(prompt)
-    url = f"https://image.pollinations.ai/prompt/{prompt_encoded}?width=800&height=600&nologo=true"
+def GorselUret(MekanAd, DosyaAdi):
+    print(f"  → Görsel üretiliyor: {MekanAd}")
 
-    response = requests.get(url, timeout=60)
-    if response.status_code == 200:
+    IstekMetni = f"Touristic photo of {MekanAd}, Egypt, ancient architecture"
+    Kodlanmis = requests.utils.quote(IstekMetni)
+
+    Adres = f"https://image.pollinations.ai/prompt/{Kodlanmis}?width=800&height=600&nologo=true"
+
+    Yanit = requests.get(Adres, timeout=60)
+
+    if Yanit.status_code == 200:
         os.makedirs("gorseller", exist_ok=True)
-        dosya_yolu = f"gorseller/{dosya_adi}.jpg"
-        with open(dosya_yolu, "wb") as f:
-            f.write(response.content)
-        print(f"  → Görsel kaydedildi: {dosya_yolu}")
-        return dosya_yolu
+        DosyaYolu = f"gorseller/{DosyaAdi}.jpg"
+
+        with open(DosyaYolu, "wb") as Dosya:
+            Dosya.write(Yanit.content)
+
+        print(f"  → Görsel kaydedildi: {DosyaYolu}")
+        return DosyaYolu
     else:
-        print(f"  → Görsel üretilemedi!")
+        print("  → Görsel üretilemedi!")
         return None
 
 
 # -------------------------
-# 4. Strapi JWT Token al
+# ŞEHİR EKLE (ÖNEMLİ DÜZELTME BURADA)
 # -------------------------
+def SehirEkle(Token, Ad, Ulke, Aciklama):
+    print(f"Şehir ekleniyor: {Ad}")
 
+    Adres = f"{StrapiUrl}/api/sehirlers"
+    Basliklar = {"Authorization": f"Bearer {Token}"}
 
-# -------------------------
-# 5. Strapi'ye Şehir ekle
-# -------------------------
-def sehir_ekle(token, ad, ulke, aciklama):
-    """Strapi'ye yeni şehir kaydı ekler."""
-    print(f"Şehir ekleniyor: {ad}")
-    url = f"{STRAPI_URL}/api/cities"
-    headers = {"Authorization": f"Bearer {token}"}
-    data = {"data": {"name": ad, "country": ulke, "description": aciklama}}
-    response = requests.post(url, json=data, headers=headers)
-    if response.status_code in [200, 201]:
-        sehir_id = response.json()["data"]["id"]
-        print(f"  → Şehir eklendi. ID: {sehir_id}")
-        return sehir_id
-    else:
-        print(f"  → Hata: {response.text}")
-        return None
-
-
-# -------------------------
-# 6. Görseli Strapi Media Library'ye yükle
-# -------------------------
-def gorsel_yukle(token, dosya_yolu, dosya_adi):
-    """Görseli Strapi Media Library'ye yükler, dosya ID'sini döner."""
-    print(f"  → Görsel Strapi'ye yükleniyor...")
-    url = f"{STRAPI_URL}/api/upload"
-    headers = {"Authorization": f"Bearer {token}"}
-    with open(dosya_yolu, "rb") as f:
-        files = {"files": (f"{dosya_adi}.jpg", f, "image/jpeg")}
-        response = requests.post(url, headers=headers, files=files)
-    if response.status_code in [200, 201]:
-        media_id = response.json()[0]["id"]
-        print(f"  → Görsel yüklendi. Media ID: {media_id}")
-        return media_id
-    else:
-        print(f"  → Görsel yüklenemedi: {response.text}")
-        return None
-
-
-# -------------------------
-# 7. Strapi'ye Mekan ekle
-# -------------------------
-def mekan_ekle(token, mekan, sehir_id, media_id, description_en):
-    """Strapi'ye mekan kaydı ekler (TR + EN açıklama + görsel)."""
-    print(f"  → Mekan Strapi'ye ekleniyor: {mekan['name']}")
-    url = f"{STRAPI_URL}/api/places"
-    headers = {"Authorization": f"Bearer {token}"}
-    data = {
+    # 🔥 STRAPI FIELD ADLARI: Ad / Ulke / Aciklama
+    Veri = {
         "data": {
-            "name": mekan["name"],
-            "description": mekan["description"],
-            "description_en": description_en,
-            "score": mekan["score"],
-            "city": sehir_id,
-            "cover": media_id
+            "Ad": Ad,
+            "Ulke": Ulke,
+            "Aciklama": Aciklama
         }
     }
-    response = requests.post(url, json=data, headers=headers)
-    if response.status_code in [200, 201]:
-        print(f"  → Mekan eklendi!")
+
+    Yanit = requests.post(Adres, json=Veri, headers=Basliklar)
+
+    if Yanit.status_code in [200, 201]:
+        SehirId = Yanit.json()["data"]["id"]
+        print(f"  → Şehir eklendi ID: {SehirId}")
+        return SehirId
     else:
-        print(f"  → Hata: {response.text}")
+        print(f"  → Hata: {Yanit.text}")
+        return None
 
 
 # -------------------------
-# ANA DÖNGÜ
+# GÖRSEL YÜKLE
 # -------------------------
-def main():
+def GorselYukle(Token, DosyaYolu, DosyaAdi):
+    print("  → Görsel Strapi'ye yükleniyor...")
+
+    Adres = f"{StrapiUrl}/api/upload"
+    Basliklar = {"Authorization": f"Bearer {Token}"}
+
+    with open(DosyaYolu, "rb") as Dosya:
+        Dosyalar = {"files": (f"{DosyaAdi}.jpg", Dosya, "image/jpeg")}
+        Yanit = requests.post(Adres, headers=Basliklar, files=Dosyalar)
+
+    if Yanit.status_code in [200, 201]:
+        return Yanit.json()[0]["id"]
+    else:
+        print(f"  → Görsel yüklenemedi: {Yanit.text}")
+        return None
+
+
+# -------------------------
+# MEKAN EKLE
+# -------------------------
+def MekanEkle(Token, Mekan, SehirId, MedyaId, AciklamaEn):
+    print(f"  → Mekan ekleniyor: {Mekan['Ad']}")
+
+    Adres = f"{StrapiUrl}/api/mekanlars"
+    Basliklar = {"Authorization": f"Bearer {Token}"}
+
+    Veri = {
+        "data": {
+            "Ad": Mekan["Ad"],
+            "Aciklama": Mekan["Aciklama"],
+            "Aciklama_en": AciklamaEn,
+            "Puan": Mekan["Puan"],
+            "Sehir": SehirId,
+            "Kapak": MedyaId
+        }
+    }
+
+    Yanit = requests.post(Adres, json=Veri, headers=Basliklar)
+
+    if Yanit.status_code in [200, 201]:
+        print("  → Mekan eklendi!")
+    else:
+        print(f"  → Hata: {Yanit.text}")
+
+
+# -------------------------
+# ANA PROGRAM
+# -------------------------
+def Main():
     print("=" * 50)
-    print("Mısır Gezi Rehberi Otomasyon Başlıyor")
+    print("MISIR GEZI REHBERI BASLIYOR")
     print("=" * 50)
 
-    # Token al
-    token = TOKEN
+    SehirId = SehirEkle(Token, SehirAdi, UlkeAdi, SehirAciklama)
 
-    # Şehri ekle
-    sehir_id = sehir_ekle(token, SEHIR, ULKE, SEHIR_ACIKLAMA)
-    if not sehir_id:
-        print("Şehir eklenemedi, işlem durduruluyor.")
+    if not SehirId:
+        print("Şehir eklenemedi.")
         return
 
-    # Her mekan için döngü
-    for mekan in MEKANLAR:
-        print(f"\n--- {mekan['name']} işleniyor ---")
+    for Mekan in Mekanlar:
+        print(f"\n--- {Mekan['Ad']} ---")
 
-        # 1. Groq ile zenginleştir
-        mekan["description"] = zenginlestir(mekan["name"], mekan["description"])
+        Mekan["Aciklama"] = Zenginlestir(Mekan["Ad"], Mekan["Aciklama"])
+        AciklamaEn = Cevir(Mekan["Aciklama"])
 
-        # 2. İngilizceye çevir
-        description_en = cevir(mekan["description"])
+        DosyaAdi = Mekan["Ad"].lower().replace(" ", "_")
+        GorselYolu = GorselUret(Mekan["Ad"], DosyaAdi)
 
-        # 3. Görsel üret ve indir
-        dosya_adi = mekan["name"].lower().replace(" ", "_")
-        gorsel_yolu = gorsel_uret_ve_indir(mekan["name"], dosya_adi)
+        MedyaId = None
+        if GorselYolu:
+            MedyaId = GorselYukle(Token, GorselYolu, DosyaAdi)
 
-        # 4. Görseli Strapi'ye yükle
-        media_id = None
-        if gorsel_yolu:
-            media_id = gorsel_yukle(token, gorsel_yolu, dosya_adi)
+        MekanEkle(Token, Mekan, SehirId, MedyaId, AciklamaEn)
 
-        # 5. Mekanı Strapi'ye kaydet
-        mekan_ekle(token, mekan, sehir_id, media_id, description_en)
-
-    print("\n" + "=" * 50)
-    print("Tüm mekanlar başarıyla yüklendi!")
-    print("=" * 50)
+    print("\nTAMAMLANDI")
 
 
 if __name__ == "__main__":
-    main()
+    Main()
