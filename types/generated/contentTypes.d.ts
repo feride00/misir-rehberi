@@ -605,6 +605,71 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiMekanlarMekanlar extends Struct.CollectionTypeSchema {
+  collectionName: 'mekanlars';
+  info: {
+    displayName: 'Mekanlar';
+    pluralName: 'mekanlars';
+    singularName: 'mekanlar';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Aciklama: Schema.Attribute.Text;
+    Aciklama_en: Schema.Attribute.Text;
+    Ad: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Kapak_resmi: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::mekanlar.mekanlar'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    sehirler: Schema.Attribute.Relation<'manyToOne', 'api::sehirler.sehirler'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSehirlerSehirler extends Struct.CollectionTypeSchema {
+  collectionName: 'sehirlers';
+  info: {
+    displayName: 'Sehirler';
+    pluralName: 'sehirlers';
+    singularName: 'sehirler';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Aciklama: Schema.Attribute.Text;
+    Ad: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::sehirler.sehirler'
+    > &
+      Schema.Attribute.Private;
+    mekanlars: Schema.Attribute.Relation<'oneToMany', 'api::mekanlar.mekanlar'>;
+    publishedAt: Schema.Attribute.DateTime;
+    Ulke: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1121,6 +1186,8 @@ declare module '@strapi/strapi' {
       'api::author.author': ApiAuthorAuthor;
       'api::category.category': ApiCategoryCategory;
       'api::global.global': ApiGlobalGlobal;
+      'api::mekanlar.mekanlar': ApiMekanlarMekanlar;
+      'api::sehirler.sehirler': ApiSehirlerSehirler;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

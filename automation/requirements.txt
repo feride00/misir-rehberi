@@ -1,0 +1,5 @@
+groq
+deep-translator
+requests
+python-dotenv
+Pillow

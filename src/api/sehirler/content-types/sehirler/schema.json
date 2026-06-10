@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sehirlers",
+  "info": {
+    "singularName": "sehirler",
+    "pluralName": "sehirlers",
+    "displayName": "Sehirler"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Ad": {
+      "type": "string"
+    },
+    "Ulke": {
+      "type": "string"
+    },
+    "Aciklama": {
+      "type": "text"
+    },
+    "mekanlars": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::mekanlar.mekanlar",
+      "mappedBy": "sehirler"
+    }
+  }
+}

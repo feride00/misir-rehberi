@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mekanlars",
+  "info": {
+    "singularName": "mekanlar",
+    "pluralName": "mekanlars",
+    "displayName": "Mekanlar"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Ad": {
+      "type": "string"
+    },
+    "Aciklama": {
+      "type": "text"
+    },
+    "Aciklama_en": {
+      "type": "text"
+    },
+    "Kapak_resmi": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "sehirler": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::sehirler.sehirler",
+      "inversedBy": "mekanlars"
+    }
+  }
+}
